@@ -1,0 +1,45 @@
+local misc = workspace:WaitForChild('Misc')
+local music = misc:WaitForChild('Celestial Horizon')
+local run = game:GetService('RunService')
+
+local ui = script.Parent:WaitForChild('ScreenGui'):WaitForChild('Frame')
+local bar = script.Parent:WaitForChild('Frame')
+
+local function DrawLine(PointA, PointB, Line)
+	local Distance = math.sqrt(math.pow(PointA.X-PointB.X, 2) + math.pow(PointA.Y-PointB.Y, 2))
+	local Center = Vector2.new((PointA.X + PointB.X)/2, (PointA.Y + PointB.Y)/2)	
+	local Rotation = math.atan2(PointA.Y - PointB.Y, PointA.X - PointB.X)
+	local LineThickness = 6
+	
+	--Line:TweenSize(UDim2.new(0, Distance, 0, LineThickness),'Out','Quad',.05)
+	Line.Size = UDim2.new(0, Distance+4, 0, LineThickness)
+	Line.AnchorPoint = Vector2.new(0.5,0.5)
+	Line.Position = UDim2.new(0, Center.X, 0, Center.Y)
+	--Line:TweenPosition(UDim2.new(0, Center.X, 0, Center.Y),'Out','Quad',.05)
+	Line.Rotation = math.deg(Rotation)
+end
+
+run.Stepped:Connect(function()
+	for i=19,1,-1 do
+		DrawLine(ui:WaitForChild('f'..i).AbsolutePosition,ui:WaitForChild('f'..i+1).AbsolutePosition,script.Parent.ScreenGui:WaitForChild('f'..i))
+	end
+end)
+
+function Run(loudness)
+	local from = 19
+	while from > 0 do
+		--ui:WaitForChild('f'..from).Position = UDim2.fromScale(ui:WaitForChild('f'..from).Position.X.Scale,loudness)
+		ui:WaitForChild('f'..from):TweenPosition(UDim2.fromScale(ui:WaitForChild('f'..from).Position.X.Scale,loudness),'Out','Quad',.03)
+		--spawn(function() DrawLine(ui:WaitForChild('f'..from).AbsolutePosition,ui:WaitForChild('f'..from+1).AbsolutePosition,script.Parent.ScreenGui:WaitForChild('f'..from)) end)
+		from -= 1
+		wait(.03)
+	end
+end
+
+while true do
+	local loudness = math.round(music.PlaybackLoudness)*0.005
+	--ui:WaitForChild('f20').Position = UDim2.fromScale(ui:WaitForChild('f20').Position.X.Scale,loudness)
+	ui:WaitForChild('f20'):TweenPosition(UDim2.fromScale(ui:WaitForChild('f20').Position.X.Scale,loudness),'Out','Quad',.07)
+	spawn(function() Run(loudness) end)
+	wait(.07)
+end
